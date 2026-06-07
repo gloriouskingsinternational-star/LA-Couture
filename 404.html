@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Page Not Found — L.A. Couture</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .not-found {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .not-found-inner { max-width: 520px; }
+    .not-found-num {
+      font-family: var(--font-display);
+      font-size: clamp(6rem, 20vw, 12rem);
+      line-height: 1;
+      color: var(--gold);
+      opacity: 0.2;
+      margin: 0;
+    }
+    .not-found h1 {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      margin: 8px 0 16px;
+    }
+    .not-found p { margin: 0 0 32px; opacity: 0.65; }
+  </style>
+</head>
+<body>
+  <div class="not-found">
+    <div class="not-found-inner">
+      <p class="not-found-num">404</p>
+      <h1>Page Not Found</h1>
+      <p>The page you're looking for doesn't exist or has been moved.<br>Let's get you back on track.</p>
+      <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+        <a href="index.html" class="btn btn-primary">Back to Home</a>
+        <a href="collections.html" class="btn btn-outline">View Collections</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

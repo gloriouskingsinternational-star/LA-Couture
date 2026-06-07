@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gallery — L.A. Couture Menswear</title>
+  <meta name="description" content="L.A. Couture gallery — editorial shots, campaign imagery and behind-the-scenes from Abuja's premier luxury menswear brand.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <div class="nav-inner">
+        <a href="index.html" class="nav-logo" aria-label="L.A. Couture Home">
+          <img src="img/Logo%202.jpg" alt="L.A. Couture logo">
+          <span class="logo-text">L.A. Couture</span>
+        </a>
+        <ul class="nav-links" role="list">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="collections.html">Collections</a></li>
+          <li><a href="gallery.html" class="active">Gallery</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+          <div class="auth-nav">
+            <a href="client-login.html">Client Login</a>
+            <span>|</span>
+            <a href="admin-login.html">Admin</a>
+          </div>
+          <button class="hamburger" aria-label="Open menu" aria-expanded="false">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="nav-drawer" id="navDrawer" aria-label="Mobile menu">
+      <button class="drawer-close" aria-label="Close menu">&times;</button>
+      <div class="drawer-brand">
+        <img src="img/Logo%202.jpg" alt="L.A. Couture">
+        <span>L.A. Couture</span>
+      </div>
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="collections.html">Collections</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="contact.html">Contact</a>
+      <div class="drawer-auth">
+        <a href="client-login.html">Client Login</a>
+        <a href="admin-login.html">Admin</a>
+      </div>
+    </div>
+    <div class="nav-overlay" id="navOverlay" aria-hidden="true"></div>
+  </nav>
+
+  <main>
+
+    <header class="page-header">
+      <div class="container">
+        <span class="eyebrow">Visual Diary</span>
+        <h1 class="display">Gallery</h1>
+        <p>Behind every garment is a story. Behind every image is a legacy. This is L.A. Couture's world.</p>
+      </div>
+    </header>
+
+    <section>
+      <div class="container">
+
+        <!-- Gallery Filter -->
+        <div class="products-filter" style="margin-bottom:40px;">
+          <button class="filter-btn active" data-gfilter="all">All</button>
+          <button class="filter-btn" data-gfilter="campaign">Campaign</button>
+          <button class="filter-btn" data-gfilter="editorial">Editorial</button>
+          <button class="filter-btn" data-gfilter="suits">Suits</button>
+          <button class="filter-btn" data-gfilter="native">Native Wear</button>
+          <button class="filter-btn" data-gfilter="bts">Behind the Scenes</button>
+        </div>
+
+        <div class="gallery-page-grid" id="gallery-grid">
+
+          <div class="gallery-page-item reveal" data-gfilter="campaign" data-src="img/Luxury%20Suits.jpg">
+            <img src="img/Luxury%20Suits.jpg" alt="Black man in luxury suit campaign" loading="lazy">
+            <div class="gallery-item-overlay"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+          </div>
+
+          <div class="gallery-page-item reveal reveal-delay-1" data-gfilter="suits" data-src="img/Black%20breasted%20suit%20styled%20with%20white%20shirt%20and%E2%80%A6.jpg">
+            <img src="img/Black%20breasted%20suit%20styled%20with%20white%20shirt%20and%E2%80%A6.jpg" alt="Elegant bespoke suit portrait" loading="lazy">
+            <div class="gallery-item-overlay"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+          </div>
+
+          <div class="gallery-page-item reveal reveal-delay-2" data-gfilter="native" data-src="img/Aso%20oke%20Agbada%20%40luxuryornothing_collections.jpg">
+            <img src="img/Aso%20oke%20Agbada%20%40luxuryornothing_collections.jpg" alt="Nigerian man in Agbada native wear" loading="lazy">
+            <div class="gallery-item-overlay"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+          </div>
+
+          <div class="gallery-page-item reveal reveal-delay-3" data-gfilter="editorial" data-src="img/Redesign_of_the_referenced_fashion_202606071014.jpeg">
+            <img src="img/Redesign_of_the_referenced_fashion_202606071014.jpeg" alt="Menswear editorial portrait" loading="lazy">
+            <div class="gallery-item-overlay"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+          </div>
+
+          <div class="gallery-page-item reveal" data-gfilter="suits" data-src="img/This%20outfit%20is%20an%20African%20senator%20attire%20that%20is%E2%80%A6.jpg">
+            <img src="img/This%20outfit%20is%20an%20African%20senator%20attire%20that%20is%E2%80%A6.jpg" alt="Black man formal suit wear" loading="lazy">
+            <div class="gallery-item-overlay"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+          </div>
+
+          <div class="gallery-page-item reveal reveal-delay-1" data-gfilter="campaign" data-src="img/Kings%20Aso-oke%20Dashiki%20Attire%20With%20Fila%2C%20Men%E2%80%A6.jpg">
+            <img src="img/Kings%20Aso-oke%20Dashiki%20Attire%20With%20Fila%2C%20Men%E2%80%A6.jpg" alt="Smart casual menswear campaign" loading="lazy">
+            <div class="gallery-item-overlay"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+          </div>
+
+          <div class="gallery-page-item reveal reveal-delay-2" data-gfilter="bts" data-src="img/Gold%20%20Collar%20%20%20%20%20Embellished%20%20%20Men%20Accessories.jpg">
+            <img src="img/Gold%20%20Collar%20%20%20%20%20Embellished%20%20%20Men%20Accessories.jpg" alt="Behind the scenes tailor atelier" loading="lazy">
+            <div class="gallery-item-overlay"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+          </div>
+
+          <div class="gallery-page-item reveal reveal-delay-3" data-gfilter="native" data-src="img/image.jpg">
+            <img src="img/image.jpg" alt="African native wear editorial" loading="lazy">
+            <div class="gallery-item-overlay"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+          </div>
+
+          <div class="gallery-page-item reveal" data-gfilter="editorial" data-src="img/Luxury%20Suits.jpg">
+            <img src="img/Luxury%20Suits.jpg" alt="Menswear editorial Abuja" loading="lazy">
+            <div class="gallery-item-overlay"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+          </div>
+
+          <div class="gallery-page-item reveal reveal-delay-1" data-gfilter="suits" data-src="img/Black%20breasted%20suit%20styled%20with%20white%20shirt%20and%E2%80%A6.jpg">
+            <img src="img/Black%20breasted%20suit%20styled%20with%20white%20shirt%20and%E2%80%A6.jpg" alt="Power suit menswear Nigeria" loading="lazy">
+            <div class="gallery-item-overlay"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+          </div>
+
+          <div class="gallery-page-item reveal reveal-delay-2" data-gfilter="campaign" data-src="img/Redesign_of_the_referenced_fashion_202606071014.jpeg">
+            <img src="img/Redesign_of_the_referenced_fashion_202606071014.jpeg" alt="Bespoke tailoring campaign shoot" loading="lazy">
+            <div class="gallery-item-overlay"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+          </div>
+
+          <div class="gallery-page-item reveal reveal-delay-3" data-gfilter="bts" data-src="img/This%20outfit%20is%20an%20African%20senator%20attire%20that%20is%E2%80%A6.jpg">
+            <img src="img/This%20outfit%20is%20an%20African%20senator%20attire%20that%20is%E2%80%A6.jpg" alt="Fitting session at L.A. Couture atelier" loading="lazy">
+            <div class="gallery-item-overlay"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+          </div>
+
+        </div>
+
+        <div class="text-center reveal" style="margin-top:48px;">
+          <a href="collections.html" class="btn btn-primary">Shop the Collections</a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- LIGHTBOX -->
+    <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Image lightbox">
+      <div class="lightbox-content">
+        <button id="lightbox-close" class="lightbox-close" aria-label="Close lightbox">×</button>
+        <button id="lightbox-prev" class="lightbox-nav lightbox-prev" aria-label="Previous image">&#8249;</button>
+        <img id="lightbox-img" src="" alt="Gallery image enlarged" class="lightbox-img">
+        <button id="lightbox-next" class="lightbox-nav lightbox-next" aria-label="Next image">&#8250;</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-logo"><img src="img/Logo%201.jpg" alt="L.A. Couture logo"><span class="footer-logo-text">L.A. Couture</span></div>
+          <p>Abuja's premier luxury menswear house.</p>
+          <div class="footer-social">
+            <a href="https://instagram.com/L.A_COUTURE221" target="_blank" rel="noopener" class="social-link" aria-label="Instagram"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg></a>
+            <a href="https://wa.me/2349038727996" target="_blank" rel="noopener" class="social-link" aria-label="WhatsApp"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg></a>
+          </div>
+        </div>
+        <div class="footer-col"><h4>Navigate</h4><ul><li><a href="index.html">Home</a></li><li><a href="collections.html">Collections</a></li><li><a href="about.html">About Us</a></li><li><a href="gallery.html">Gallery</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+        <div class="footer-col"><h4>Help</h4><ul><li><a href="contact.html#faq">FAQ</a></li><li><a href="contact.html">Size Guide</a></li><li><a href="contact.html">Returns Policy</a></li><li><a href="contact.html">Bespoke Orders</a></li></ul></div>
+        <div class="footer-col"><h4>Contact</h4>
+          <div class="footer-contact-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Azhata, FCT Abuja, Nigeria</span></div>
+          <div class="footer-contact-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.59 1.25h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6.06 6.06l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><a href="https://wa.me/2349038727996">0903 872 7996</a></div>
+          <div class="footer-contact-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:L.acouture014@gmail.com">L.acouture014@gmail.com</a></div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-copyright">© 2026 L.A. Couture. All Rights Reserved.</p>
+        <div class="footer-payments"><span class="payment-badge">Paystack</span><span class="payment-badge">Visa</span><span class="payment-badge">Mastercard</span></div>
+      </div>
+    </div>
+  </footer>
+
+  <a href="https://wa.me/2349038727996?text=Hello%20L.A.%20Couture%2C%20I%20am%20interested%20in%20your%20menswear." class="wa-btn" target="_blank" rel="noopener" aria-label="WhatsApp">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+    <span class="wa-tooltip">Chat with us · 0903 872 7996</span>
+  </a>
+
+  <script src="js/main.js"></script>
+  <script>
+    /* Gallery page lightbox with prev/next */
+    (function() {
+      const lightbox = document.getElementById('lightbox');
+      const lbImg    = document.getElementById('lightbox-img');
+      const lbClose  = document.getElementById('lightbox-close');
+      const lbPrev   = document.getElementById('lightbox-prev');
+      const lbNext   = document.getElementById('lightbox-next');
+      const items    = Array.from(document.querySelectorAll('#gallery-grid .gallery-page-item'));
+
+      let current = 0;
+
+      function visibleItems() {
+        return items.filter(i => i.style.display !== 'none');
+      }
+
+      function open(idx) {
+        const vis = visibleItems();
+        if (!vis[idx]) return;
+        current = idx;
+        const img = vis[idx].querySelector('img');
+        lbImg.src = vis[idx].dataset.src || img?.src || '';
+        lbImg.alt = img?.alt || '';
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function close() {
+        lightbox.classList.remove('active');
+        lbImg.src = '';
+        document.body.style.overflow = '';
+      }
+
+      function prev() {
+        const vis = visibleItems();
+        current = (current - 1 + vis.length) % vis.length;
+        const img = vis[current].querySelector('img');
+        lbImg.src = vis[current].dataset.src || img?.src || '';
+        lbImg.alt = img?.alt || '';
+      }
+
+      function next() {
+        const vis = visibleItems();
+        current = (current + 1) % vis.length;
+        const img = vis[current].querySelector('img');
+        lbImg.src = vis[current].dataset.src || img?.src || '';
+        lbImg.alt = img?.alt || '';
+      }
+
+      items.forEach((item) => {
+        item.addEventListener('click', () => {
+          const vis = visibleItems();
+          const idx = vis.indexOf(item);
+          open(idx >= 0 ? idx : 0);
+        });
+      });
+
+      lbClose?.addEventListener('click', close);
+      lbPrev?.addEventListener('click', (e) => { e.stopPropagation(); prev(); });
+      lbNext?.addEventListener('click', (e) => { e.stopPropagation(); next(); });
+      lightbox?.addEventListener('click', (e) => { if (e.target === lightbox) close(); });
+
+      document.addEventListener('keydown', (e) => {
+        if (!lightbox.classList.contains('active')) return;
+        if (e.key === 'Escape')     close();
+        if (e.key === 'ArrowLeft')  prev();
+        if (e.key === 'ArrowRight') next();
+      });
+
+      /* Gallery filter override for data-gfilter */
+      document.querySelectorAll('.filter-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const f = btn.dataset.gfilter || 'all';
+          items.forEach(item => {
+            item.style.display = (f === 'all' || item.dataset.gfilter === f) ? '' : 'none';
+          });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+# Netlify redirects
+# Any page not found → show 404 friendly
+/*    /index.html   404
