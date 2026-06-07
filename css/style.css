@@ -337,6 +337,18 @@ p { color: rgba(248,244,239,0.78); line-height: 1.9; }
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
+  /* Subtle parallax on desktop */
+  background-attachment: fixed;
+  /* Fade in smoothly */
+  will-change: transform;
+}
+
+/* Remove fixed attachment on mobile — it breaks on iOS Safari */
+@media (max-width: 768px) {
+  .hero-bg-img {
+    background-attachment: scroll;
+    background-position: center center;
+  }
 }
 
 .hero-overlay {
