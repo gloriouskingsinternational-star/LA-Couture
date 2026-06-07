@@ -21,11 +21,10 @@ document.addEventListener('DOMContentLoaded', () => {
     revealEls.forEach((el) => revealObserver.observe(el));
   }
 
-  /* ── Hamburger / Mobile Drawer ─────────── */
+  /* ── Hamburger / Mobile Dropdown ────────── */
   const hamburger = document.querySelector('.hamburger');
   const drawer    = document.getElementById('navDrawer') || document.querySelector('.nav-drawer');
   const overlay   = document.getElementById('navOverlay') || document.querySelector('.nav-overlay');
-  const closeBtn  = document.querySelector('.drawer-close');
 
   function openDrawer() {
     if (!drawer) return;
@@ -35,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
       hamburger.classList.add('is-open');
       hamburger.setAttribute('aria-expanded', 'true');
     }
-    document.body.style.overflow = 'hidden';
   }
 
   function closeDrawer() {
@@ -46,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
       hamburger.classList.remove('is-open');
       hamburger.setAttribute('aria-expanded', 'false');
     }
-    document.body.style.overflow = '';
   }
 
   if (hamburger) {
@@ -56,19 +53,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  closeBtn?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    closeDrawer();
+  // Tap overlay or anywhere outside to close
+  overlay?.addEventListener('click', closeDrawer);
+  document.addEventListener('click', (e) => {
+    if (!drawer?.classList.contains('open')) return;
+    if (!drawer.contains(e.target) && !hamburger?.contains(e.target)) closeDrawer();
   });
 
-  overlay?.addEventListener('click', closeDrawer);
-
-  // Close drawer when any drawer nav link is tapped
+  // Close when a menu link is tapped
   drawer?.querySelectorAll('a').forEach((link) => {
     link.addEventListener('click', closeDrawer);
   });
 
-  // Close on Escape key
+  // Close on Escape
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeDrawer();
   });
