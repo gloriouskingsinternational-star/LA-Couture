@@ -1,14 +1,375 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Collections — L.A. Couture Menswear</title>
-  <meta name="description" content="Shop L.A. Couture menswear collections — luxury suits, bespoke tailoring, Agbada & native wear, and accessories. Abuja, Nigeria.">
+  <title>Collections &mdash; L.A. Couture Menswear</title>
+  <meta name="description" content="Shop L.A. Couture menswear collections &mdash; luxury suits, bespoke tailoring, Agbada &amp; native wear, and accessories. Abuja, Nigeria.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* -- Cart Icon in Nav -- */
+    .cart-nav-btn {
+      position: relative;
+      width: 44px;
+      height: 44px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      flex-shrink: 0;
+    }
+    .cart-nav-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--gold); }
+    .cart-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: var(--gold);
+      color: #09080b;
+      font-size: 0.65rem;
+      font-weight: 700;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      display: none;
+    }
+    .cart-badge.show { display: flex; }
+
+    /* -- Add to Cart Button on Product Cards -- */
+    .btn-cart {
+      width: 100%;
+      margin-top: 10px;
+      background: var(--gold);
+      color: #09080b;
+      border: none;
+      border-radius: 999px;
+      padding: 11px 0;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+    .btn-cart:hover { background: var(--gold-light); transform: translateY(-1px); }
+    .btn-cart:active { transform: translateY(0); }
+    .btn-cart.added {
+      background: rgba(76,175,80,0.15);
+      color: #66bb6a;
+      border: 1px solid rgba(76,175,80,0.3);
+    }
+
+    /* -- Cart Sidebar Panel -- */
+    .cart-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: min(420px, 100vw);
+      background: #0d0c10;
+      border-left: 1px solid rgba(255,255,255,0.08);
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(110%);
+      transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: -24px 0 80px rgba(0,0,0,0.5);
+    }
+    .cart-panel.open { transform: translateX(0); }
+
+    .cart-panel-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 299;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .cart-panel-overlay.open { opacity: 1; pointer-events: auto; }
+
+    .cart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .cart-header h3 {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--ivory);
+      margin: 0;
+      letter-spacing: 0.05em;
+    }
+    .cart-close {
+      width: 38px;
+      height: 38px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04);
+      border-radius: 50%;
+      color: var(--text);
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .cart-close:hover { background: rgba(255,255,255,0.1); }
+
+    .cart-items {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 24px;
+    }
+
+    .cart-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 16px;
+      color: var(--muted);
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .cart-empty svg { opacity: 0.3; }
+    .cart-empty p { font-size: 0.95rem; margin: 0; }
+
+    .cart-item {
+      display: grid;
+      grid-template-columns: 72px 1fr auto;
+      gap: 14px;
+      align-items: start;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .cart-item:last-child { border-bottom: none; }
+    .cart-item-img {
+      width: 72px;
+      height: 72px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+    .cart-item-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .cart-item-info { min-width: 0; }
+    .cart-item-name {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      color: var(--ivory);
+      margin: 0 0 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .cart-item-cat {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 0 0 10px;
+    }
+    .cart-item-qty {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .qty-btn {
+      width: 28px;
+      height: 28px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s;
+      line-height: 1;
+    }
+    .qty-btn:hover { background: rgba(255,255,255,0.12); }
+    .qty-val { font-size: 0.9rem; color: var(--ivory); min-width: 16px; text-align: center; }
+    .cart-item-price {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      color: var(--gold);
+      white-space: nowrap;
+    }
+    .cart-item-remove {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.25);
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      transition: color 0.2s;
+      margin-top: 2px;
+    }
+    .cart-item-remove:hover { color: #ff6b6b; }
+
+    .cart-footer {
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding: 20px 24px;
+      display: grid;
+      gap: 14px;
+    }
+    .cart-subtotal {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .cart-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 14px;
+    }
+    .cart-total span:first-child {
+      font-size: 0.9rem;
+      color: var(--ivory);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .cart-total-price {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      color: var(--gold);
+    }
+    .btn-checkout {
+      background: var(--gold);
+      color: #09080b;
+      border: none;
+      border-radius: 999px;
+      padding: 15px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-checkout:hover { background: var(--gold-light); transform: translateY(-1px); }
+    .btn-clear-cart {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 999px;
+      padding: 10px;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+      text-align: center;
+    }
+    .btn-clear-cart:hover { color: #ff6b6b; border-color: rgba(255,100,100,0.3); }
+
+    /* -- Checkout Success Modal -- */
+    .order-modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.8);
+      z-index: 400;
+      padding: 20px;
+    }
+    .order-modal.show { display: flex; }
+    .order-modal-card {
+      background: #0d0c10;
+      border: 1px solid rgba(197,155,45,0.3);
+      border-radius: 20px;
+      padding: 40px 32px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+    }
+    .order-modal-icon {
+      width: 64px;
+      height: 64px;
+      background: rgba(76,175,80,0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 1.8rem;
+    }
+    .order-modal-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: var(--ivory);
+      margin: 0 0 12px;
+    }
+    .order-modal-card p { font-size: 0.9rem; opacity: 0.7; margin: 0 0 24px; }
+    .order-modal-id {
+      background: rgba(197,155,45,0.08);
+      border: 1px solid rgba(197,155,45,0.2);
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-family: var(--font-display);
+      font-size: 1rem;
+      color: var(--gold);
+      margin-bottom: 24px;
+      letter-spacing: 0.1em;
+    }
+
+    /* -- Toast notification -- */
+    .cart-toast {
+      position: fixed;
+      bottom: 100px;
+      right: 24px;
+      background: #1a1920;
+      border: 1px solid rgba(197,155,45,0.3);
+      border-radius: 12px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.88rem;
+      color: var(--text);
+      z-index: 350;
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      max-width: 300px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .cart-toast.show { opacity: 1; transform: translateY(0); }
+    .cart-toast-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+  </style>
 </head>
 <body>
 
@@ -33,13 +394,19 @@
             <span>|</span>
             <a href="admin-login.html">Admin</a>
           </div>
+          <!-- Cart Button -->
+          <button class="cart-nav-btn" id="cartToggle" aria-label="Open cart">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <span class="cart-badge" id="cartBadge">0</span>
+          </button>
           <button class="hamburger" aria-label="Open menu" aria-expanded="false">
             <span></span><span></span><span></span>
           </button>
         </div>
       </div>
     </div>
-    <div class="nav-drawer" id="navDrawer" aria-label="Mobile menu">      <a href="index.html">Home</a>
+    <div class="nav-drawer" id="navDrawer" aria-label="Mobile menu">
+      <a href="index.html">Home</a>
       <a href="about.html">About</a>
       <a href="collections.html">Collections</a>
       <a href="gallery.html">Gallery</a>
@@ -58,14 +425,14 @@
       <div class="container">
         <span class="eyebrow">L.A. Couture Menswear</span>
         <h1 class="display">Collections</h1>
-        <p>Every piece is an invitation — to feel powerful, to command the room, to be undeniably you.</p>
+        <p>Every piece is an invitation &mdash; to feel powerful, to command the room, to be undeniably you.</p>
       </div>
     </header>
 
     <section>
       <div class="container">
 
-        <!-- Filter -->
+        <!-- Filter Tabs -->
         <div class="products-filter" role="tablist" aria-label="Filter collections">
           <button class="filter-btn active" data-filter="all" role="tab">All</button>
           <button class="filter-btn" data-filter="suits" role="tab">Luxury Suits</button>
@@ -79,126 +446,180 @@
         <!-- Products Grid -->
         <div class="products-grid" id="products-grid">
 
-          <article class="product-card reveal" data-cat="suits">
+          <article class="product-card reveal" data-cat="suits"
+            data-id="P001" data-name="Abuja Power Suit" data-price="200000"
+            data-img="img/black-breasted-suit.jpg" data-category="Luxury Suits">
             <div class="product-card-img">
-              <img src="img/black-breasted-suit.jpg" alt="Black man wearing luxury two-piece suit" loading="lazy">
+              <img src="img/black-breasted-suit.jpg" alt="Abuja Power Suit" loading="lazy">
               <span class="product-tag">New</span>
               <div class="product-quick">View Details</div>
             </div>
             <div class="product-info">
-              <h3 class="product-name">Azhata Power Suit</h3>
+              <h3 class="product-name">Abuja Power Suit</h3>
               <p class="product-cat">Luxury Suits</p>
-              <p class="product-price">₦ 320,000</p>
+              <p class="product-price">&#8358; 200,000</p>
+              <button class="btn-cart" data-id="P001">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                Add to Cart
+              </button>
             </div>
           </article>
 
-          <article class="product-card reveal reveal-delay-1" data-cat="agbada">
+          <article class="product-card reveal reveal-delay-1" data-cat="agbada"
+            data-id="P002" data-name="Royal Agbada Set" data-price="150000"
+            data-img="img/agbada-collection.jpg" data-category="Agbada &amp; Native">
             <div class="product-card-img">
-              <img src="img/agbada-collection.jpg" alt="Nigerian man in luxury Agbada native wear" loading="lazy">
+              <img src="img/agbada-collection.jpg" alt="Royal Agbada Set" loading="lazy">
               <span class="product-tag">Bestseller</span>
               <div class="product-quick">View Details</div>
             </div>
             <div class="product-info">
               <h3 class="product-name">Royal Agbada Set</h3>
               <p class="product-cat">Agbada &amp; Native</p>
-              <p class="product-price">₦ 480,000</p>
+              <p class="product-price">&#8358; 150,000</p>
+              <button class="btn-cart" data-id="P002">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                Add to Cart
+              </button>
             </div>
           </article>
 
-          <article class="product-card reveal reveal-delay-2" data-cat="bespoke">
+          <article class="product-card reveal reveal-delay-2" data-cat="bespoke"
+            data-id="P003" data-name="Bespoke Commission" data-price="90000"
+            data-img="img/bespoke-design.jpg" data-category="Bespoke">
             <div class="product-card-img">
-              <img src="img/bespoke-design.jpeg" alt="Bespoke tailored menswear Nigeria" loading="lazy">
+              <img src="img/bespoke-design.jpg" alt="Bespoke Commission" loading="lazy">
               <span class="product-tag">Custom</span>
-              <div class="product-quick">Request a Consultation</div>
+              <div class="product-quick">Request Consultation</div>
             </div>
             <div class="product-info">
               <h3 class="product-name">Bespoke Commission</h3>
-              <p class="product-cat">Bespoke · Made for You</p>
-              <p class="product-price">From ₦ 200,000</p>
+              <p class="product-cat">Bespoke &middot; Made for You</p>
+              <p class="product-price">From &#8358; 90,000</p>
+              <button class="btn-cart" data-id="P003">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                Add to Cart
+              </button>
             </div>
           </article>
 
-          <article class="product-card reveal" data-cat="casual">
+          <article class="product-card reveal" data-cat="casual"
+            data-id="P004" data-name="Lagos Street Luxe Set" data-price="150000"
+            data-img="img/kings-dashiki.jpg" data-category="Smart Casual">
             <div class="product-card-img">
-              <img src="img/kings-dashiki.jpg" alt="Black man smart casual wear" loading="lazy">
+              <img src="img/kings-dashiki.jpg" alt="Lagos Street Luxe Set" loading="lazy">
               <div class="product-quick">View Details</div>
             </div>
             <div class="product-info">
               <h3 class="product-name">Lagos Street Luxe Set</h3>
-              <p class="product-cat">Smart Casual</p>
-              <p class="product-price">₦ 145,000</p>
+              <p class="product-cat">Smart Wear</p>
+              <p class="product-price">&#8358; 150,000</p>
+              <button class="btn-cart" data-id="P004">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                Add to Cart
+              </button>
             </div>
           </article>
 
-          <article class="product-card reveal reveal-delay-1" data-cat="formal">
+          <article class="product-card reveal reveal-delay-1" data-cat="formal"
+            data-id="P005" data-name="FCT Executive Blazer" data-price="80000"
+            data-img="img/senator-attire.jpg" data-category="Formal Wear">
             <div class="product-card-img">
-              <img src="img/senator-attire.jpg" alt="Black man in formal wear Abuja" loading="lazy">
+              <img src="img/fct-executive.jpg" alt="FCT Executive" loading="lazy">
               <span class="product-tag">New</span>
               <div class="product-quick">View Details</div>
             </div>
             <div class="product-info">
-              <h3 class="product-name">FCT Executive Blazer</h3>
-              <p class="product-cat">Formal Wear</p>
-              <p class="product-price">₦ 210,000</p>
+              <h3 class="product-name">FCT Executive</h3>
+              <p class="product-cat">FCT Wear</p>
+              <p class="product-price">&#8358; 80,000</p>
+              <button class="btn-cart" data-id="P005">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                Add to Cart
+              </button>
             </div>
           </article>
 
-          <article class="product-card reveal reveal-delay-2" data-cat="accessories">
+          <article class="product-card reveal reveal-delay-2" data-cat="accessories"
+            data-id="P006" data-name="Gold Cufflink &amp; Tie Set" data-price="35000"
+            data-img="img/gold-accessories.jpg" data-category="Accessories">
             <div class="product-card-img">
-              <img src="img/gold-accessories.jpg" alt="Luxury men accessories cufflinks pocket square" loading="lazy">
+              <img src="img/gold-accessories.jpg" alt="Gold Cufflink and Tie Set" loading="lazy">
               <div class="product-quick">View Details</div>
             </div>
             <div class="product-info">
-              <h3 class="product-name">Gold Cufflink & Tie Set</h3>
+              <h3 class="product-name">Gold Cufflink &amp; Tie Set</h3>
               <p class="product-cat">Accessories</p>
-              <p class="product-price">₦ 45,000</p>
+              <p class="product-price">&#8358; 35,000</p>
+              <button class="btn-cart" data-id="P006">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                Add to Cart
+              </button>
             </div>
           </article>
 
-          <article class="product-card reveal" data-cat="suits">
+          <article class="product-card reveal" data-cat="suits"
+            data-id="P007" data-name="Abuja Three-Piece" data-price="155000"
+            data-img="img/luxury-suits.jpg" data-category="Luxury Suits">
             <div class="product-card-img">
-              <img src="img/luxury-suits.jpg" alt="Black man wearing three-piece suit" loading="lazy">
+              <img src="img/luxury-suits.jpg" alt="Abuja Three-Piece Suit" loading="lazy">
               <span class="product-tag">Limited</span>
               <div class="product-quick">View Details</div>
             </div>
             <div class="product-info">
               <h3 class="product-name">Abuja Three-Piece</h3>
               <p class="product-cat">Luxury Suits</p>
-              <p class="product-price">₦ 395,000</p>
+              <p class="product-price">&#8358; 155,000</p>
+              <button class="btn-cart" data-id="P007">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                Add to Cart
+              </button>
             </div>
           </article>
 
-          <article class="product-card reveal reveal-delay-1" data-cat="agbada">
+          <article class="product-card reveal reveal-delay-1" data-cat="agbada"
+            data-id="P008" data-name="Aso-Oke Senator Set" data-price="120000"
+            data-img="img/senator-attire.jpg" data-category="Agbada &amp; Native">
             <div class="product-card-img">
-              <img src="img/atelier.jpg" alt="African native wear editorial" loading="lazy">
+              <img src="img/senator-attire.jpg" alt="Aso-Oke Senator Set" loading="lazy">
               <div class="product-quick">View Details</div>
             </div>
             <div class="product-info">
               <h3 class="product-name">Aso-Oke Senator Set</h3>
               <p class="product-cat">Agbada &amp; Native</p>
-              <p class="product-price">₦ 260,000</p>
+              <p class="product-price">&#8358; 120,000</p>
+              <button class="btn-cart" data-id="P008">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                Add to Cart
+              </button>
             </div>
           </article>
 
-          <article class="product-card reveal reveal-delay-2" data-cat="casual">
+          <article class="product-card reveal reveal-delay-2" data-cat="casual"
+            data-id="P009" data-name="Weekend Linen Set" data-price="45000"
+            data-img="img/weekend-linen.jpg" data-category="Smart Casual">
             <div class="product-card-img">
-              <img src="img/atelier.jpg" alt="Contemporary African men casual" loading="lazy">
+              <img src="img/weekend-linen.jpg" alt="Weekend Linen Set" loading="lazy">
               <div class="product-quick">View Details</div>
             </div>
             <div class="product-info">
               <h3 class="product-name">Weekend Linen Set</h3>
               <p class="product-cat">Smart Casual</p>
-              <p class="product-price">₦ 95,000</p>
+              <p class="product-price">&#8358; 45,000</p>
+              <button class="btn-cart" data-id="P009">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                Add to Cart
+              </button>
             </div>
           </article>
 
         </div>
 
         <!-- Bespoke CTA -->
-        <div class="text-center reveal" style="padding:60px 0; border-top:1px solid var(--border); margin-top:60px;">
+        <div class="text-center reveal" style="padding:60px 0;border-top:1px solid var(--border);margin-top:60px;">
           <span class="eyebrow" style="display:block;margin-bottom:14px;">Can't find what you're looking for?</span>
           <h2 class="display" style="margin-bottom:18px;font-size:clamp(1.8rem,3vw,2.6rem);">Commission a Bespoke Piece</h2>
-          <p style="max-width:480px;margin:0 auto 32px;opacity:0.7;line-height:1.8;">Every man is unique. Our bespoke service begins with a consultation — tell us your vision and we'll bring it to life.</p>
+          <p style="max-width:480px;margin:0 auto 32px;opacity:0.7;line-height:1.8;">Every man is unique. Our bespoke service begins with a consultation &mdash; tell us your vision and we'll bring it to life.</p>
           <a href="contact.html" class="btn btn-primary">Start the Conversation</a>
         </div>
 
@@ -206,6 +627,64 @@
     </section>
 
   </main>
+
+  <!-- --- CART PANEL --- -->
+  <div class="cart-panel-overlay" id="cartOverlay"></div>
+  <aside class="cart-panel" id="cartPanel" aria-label="Shopping cart">
+    <div class="cart-header">
+      <h3>Your Cart</h3>
+      <button class="cart-close" id="cartClose" aria-label="Close cart">&times;</button>
+    </div>
+    <div class="cart-items" id="cartItems">
+      <div class="cart-empty" id="cartEmpty">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <p>Your cart is empty.<br>Add a piece to get started.</p>
+      </div>
+    </div>
+    <div class="cart-footer" id="cartFooter" style="display:none;">
+      <div class="cart-subtotal">
+        <span>Items</span>
+        <span id="cartItemCount">0</span>
+      </div>
+      <div class="cart-total">
+        <span>Total</span>
+        <span class="cart-total-price" id="cartTotal">&#8358; 0</span>
+      </div>
+      <button class="btn-checkout" id="checkoutBtn">Place Order via WhatsApp</button>
+      <button class="btn-clear-cart" id="clearCartBtn">Clear Cart</button>
+    </div>
+  </aside>
+
+  <!-- --- ORDER SUCCESS MODAL --- -->
+  <div class="order-modal" id="orderModal">
+    <div class="order-modal-card">
+      <div class="order-modal-icon">&#10003;</div>
+      <h3>Order Sent!</h3>
+      <p>Your order has been saved and sent to our team via WhatsApp. We'll confirm within 24 hours.</p>
+      <div class="order-modal-id" id="orderRef">Order #LA-000000</div>
+      <div style="display:flex;gap:10px;margin-top:4px;flex-wrap:wrap;justify-content:center;">
+        <button class="btn-checkout" id="viewReceiptBtn" style="max-width:200px;">View Receipt</button>
+        <button class="btn-checkout" onclick="closeOrderModal()" style="max-width:160px;background:rgba(255,255,255,0.08);color:var(--text);border:1px solid rgba(255,255,255,0.12);">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECEIPT MODAL (all users) -->
+  <div id="cartReceiptModal" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:#0d0c10;border:1px solid rgba(197,155,45,0.3);border-radius:20px;max-width:540px;width:100%;max-height:92vh;overflow-y:auto;">
+      <div id="cartReceiptBody" style="padding:28px 28px 8px;"></div>
+      <div style="padding:14px 28px 24px;display:flex;gap:10px;flex-wrap:wrap;">
+        <button onclick="printCartReceipt()" style="flex:1;padding:12px;background:var(--gold);color:#09080b;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.07em;">&#128438; Print / Save PDF</button>
+        <button onclick="document.getElementById('cartReceiptModal').style.display='none'" style="padding:12px 18px;background:rgba(255,255,255,0.05);color:var(--text);border:1px solid rgba(255,255,255,0.1);border-radius:10px;cursor:pointer;font-size:0.85rem;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- --- TOAST --- -->
+  <div class="cart-toast" id="cartToast">
+    <span class="cart-toast-dot"></span>
+    <span id="cartToastMsg">Item added to cart</span>
+  </div>
 
   <!-- FOOTER -->
   <footer class="footer" role="contentinfo">
@@ -216,32 +695,392 @@
           <p>Abuja's premier luxury menswear house.</p>
           <div class="footer-social">
             <a href="https://instagram.com/L.A_COUTURE221" target="_blank" rel="noopener" class="social-link" aria-label="Instagram"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg></a>
-            <a href="https://wa.me/2349038727996" target="_blank" rel="noopener" class="social-link" aria-label="WhatsApp"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg></a>
+            <a href="https://wa.me/2349154577746" target="_blank" rel="noopener" class="social-link" aria-label="WhatsApp"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg></a>
           </div>
         </div>
         <div class="footer-col"><h4>Navigate</h4><ul><li><a href="index.html">Home</a></li><li><a href="collections.html">Collections</a></li><li><a href="about.html">About Us</a></li><li><a href="gallery.html">Gallery</a></li><li><a href="contact.html">Contact</a></li></ul></div>
         <div class="footer-col"><h4>Help</h4><ul><li><a href="contact.html#faq">FAQ</a></li><li><a href="contact.html">Size Guide</a></li><li><a href="contact.html">Returns Policy</a></li><li><a href="contact.html">Bespoke Orders</a></li></ul></div>
         <div class="footer-col"><h4>Contact</h4>
           <div class="footer-contact-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Azhata, FCT Abuja, Nigeria</span></div>
-          <div class="footer-contact-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.59 1.25h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6.06 6.06l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><a href="https://wa.me/2349038727996">0903 872 7996</a></div>
+          <div class="footer-contact-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.59 1.25h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6.06 6.06l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><a href="https://wa.me/2349154577746">0915 457 7746</a></div>
           <div class="footer-contact-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:L.acouture014@gmail.com">L.acouture014@gmail.com</a></div>
         </div>
       </div>
       <div class="footer-bottom">
-        <p class="footer-copyright">© 2026 L.A. Couture. All Rights Reserved.</p>
+        <p class="footer-copyright">&copy; 2026 L.A. Couture. All Rights Reserved.</p>
         <div class="footer-payments"><span class="payment-badge">Paystack</span><span class="payment-badge">Visa</span><span class="payment-badge">Mastercard</span><span class="payment-badge">Verve</span></div>
       </div>
     </div>
   </footer>
 
-  <a href="https://wa.me/2349038727996?text=Hello%20L.A.%20Couture%2C%20I%20am%20interested%20in%20your%20menswear%20collection." class="wa-btn" target="_blank" rel="noopener" aria-label="WhatsApp">
+  <a href="https://wa.me/2349154577746?text=Hello%20L.A.%20Couture%2C%20I%20am%20interested%20in%20your%20menswear%20collection." class="wa-btn" target="_blank" rel="noopener" aria-label="WhatsApp">
     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-    <span class="wa-tooltip">Chat with us · 0903 872 7996</span>
+    <span class="wa-tooltip">Chat with us &middot; 0915 457 7746</span>
   </a>
 
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
   <script>
-    // Read URL param on load e.g. ?cat=suits
+  /* -------------------------------------------
+     L.A. COUTURE — CART SYSTEM
+     Saves orders to backend API; local cart stored in sessionStorage.
+  ------------------------------------------- */
+  (function() {
+    const CART_KEY   = 'la_couture_cart';
+    const ORDERS_KEY = 'la_couture_orders';
+
+    // -- Helpers --
+    function getCart()    { return JSON.parse(localStorage.getItem(CART_KEY)  || '[]'); }
+    function saveCart(c)  { localStorage.setItem(CART_KEY, JSON.stringify(c)); }
+    function getOrders()  { return JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]'); }
+    function saveOrders(o){ localStorage.setItem(ORDERS_KEY, JSON.stringify(o)); }
+
+    // Format naira &mdash; always clean e.g. "? 320,000"
+    function fmt(n) {
+      const num = Math.round(Number(n) || 0);
+      return '\u20a6 ' + num.toLocaleString('en-NG');
+    }
+
+    // Unique order ref: LA + date YYMMDD + 4-char random hex
+    function genRef() {
+      const d   = new Date();
+      const ymd = d.getFullYear().toString().slice(-2)
+                + String(d.getMonth()+1).padStart(2,'0')
+                + String(d.getDate()).padStart(2,'0');
+      const rnd = Math.floor(Math.random() * 0xFFFF).toString(16).toUpperCase().padStart(4,'0');
+      return 'LA-' + ymd + '-' + rnd;
+    }
+
+    // -- DOM refs --
+    const panel     = document.getElementById('cartPanel');
+    const overlay   = document.getElementById('cartOverlay');
+    const closeBtn  = document.getElementById('cartClose');
+    const itemsEl   = document.getElementById('cartItems');
+    const emptyEl   = document.getElementById('cartEmpty');
+    const footerEl  = document.getElementById('cartFooter');
+    const badgeEl   = document.getElementById('cartBadge');
+    const totalEl   = document.getElementById('cartTotal');
+    const countEl   = document.getElementById('cartItemCount');
+    const toastEl   = document.getElementById('cartToast');
+    const toastMsg  = document.getElementById('cartToastMsg');
+
+    // -- Open / Close --
+    function openCart()  { panel.classList.add('open'); overlay.classList.add('open'); document.body.style.overflow='hidden'; }
+    function closeCart() { panel.classList.remove('open'); overlay.classList.remove('open'); document.body.style.overflow=''; }
+
+    document.getElementById('cartToggle').addEventListener('click', openCart);
+    closeBtn.addEventListener('click', closeCart);
+    overlay.addEventListener('click', closeCart);
+
+    // -- Toast --
+    let toastTimer;
+    function showToast(msg) {
+      toastMsg.textContent = msg;
+      toastEl.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2800);
+    }
+
+    // -- Update badge --
+    function updateBadge() {
+      const cart  = getCart();
+      const total = cart.reduce((s, i) => s + i.qty, 0);
+      badgeEl.textContent = total;
+      total > 0 ? badgeEl.classList.add('show') : badgeEl.classList.remove('show');
+    }
+
+    // -- Render cart --
+    function renderCart() {
+      const cart = getCart();
+      updateBadge();
+
+      // Remove old items (keep empty msg and footer)
+      itemsEl.querySelectorAll('.cart-item').forEach(el => el.remove());
+
+      if (cart.length === 0) {
+        emptyEl.style.display = 'flex';
+        footerEl.style.display = 'none';
+        return;
+      }
+
+      emptyEl.style.display = 'none';
+      footerEl.style.display = 'grid';
+
+      let total = 0;
+      cart.forEach(item => {
+        total += item.price * item.qty;
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.dataset.id = item.id;
+        div.innerHTML = `
+          <div class="cart-item-img">
+            <img src="${item.img}" alt="${item.name}" loading="lazy">
+          </div>
+          <div class="cart-item-info">
+            <p class="cart-item-name">${item.name}</p>
+            <p class="cart-item-cat">${item.category}</p>
+            <div class="cart-item-qty">
+              <button class="qty-btn" data-action="dec" data-id="${item.id}">-</button>
+              <span class="qty-val">${item.qty}</span>
+              <button class="qty-btn" data-action="inc" data-id="${item.id}">+</button>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+            <span class="cart-item-price">${fmt(item.price * item.qty)}</span>
+            <button class="cart-item-remove" data-id="${item.id}" title="Remove">&times;</button>
+          </div>
+        `;
+        itemsEl.appendChild(div);
+      });
+
+      totalEl.textContent = fmt(total);
+      countEl.textContent = cart.reduce((s,i)=>s+i.qty,0) + ' item' + (cart.reduce((s,i)=>s+i.qty,0)!==1?'s':'');
+    }
+
+    // -- Qty / Remove handlers --
+    itemsEl.addEventListener('click', e => {
+      const btn = e.target.closest('[data-action],[data-id].cart-item-remove');
+      if (!btn) return;
+      const id   = btn.dataset.id;
+      const cart = getCart();
+      const idx  = cart.findIndex(i => i.id === id);
+      if (idx < 0) return;
+
+      if (btn.classList.contains('cart-item-remove')) {
+        cart.splice(idx, 1);
+        showToast('Item removed from cart');
+      } else if (btn.dataset.action === 'inc') {
+        cart[idx].qty++;
+      } else if (btn.dataset.action === 'dec') {
+        cart[idx].qty--;
+        if (cart[idx].qty < 1) cart.splice(idx, 1);
+      }
+      saveCart(cart);
+      renderCart();
+      // Reset add-to-cart buttons
+      syncCartButtons();
+    });
+
+    // -- Clear cart --
+    document.getElementById('clearCartBtn').addEventListener('click', () => {
+      saveCart([]);
+      renderCart();
+      syncCartButtons();
+      showToast('Cart cleared');
+    });
+
+    // -- Add to cart --
+    document.querySelectorAll('.btn-cart').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const card = btn.closest('.product-card');
+        const id   = card.dataset.id;
+        const name = card.dataset.name;
+        const price= parseInt(card.dataset.price);
+        const img  = card.dataset.img;
+        const cat  = card.dataset.category;
+
+        const cart = getCart();
+        const existing = cart.find(i => i.id === id);
+        if (existing) {
+          existing.qty++;
+        } else {
+          cart.push({ id, name, price, img, category: cat, qty: 1 });
+        }
+        saveCart(cart);
+        renderCart();
+        syncCartButtons();
+        showToast(name + ' added to cart');
+        openCart();
+      });
+    });
+
+    // -- Sync button state --
+    function syncCartButtons() {
+      const cart = getCart();
+      document.querySelectorAll('.btn-cart').forEach(btn => {
+        const id = btn.dataset.id;
+        if (cart.find(i => i.id === id)) {
+          btn.classList.add('added');
+          btn.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            In Cart
+          `;
+        } else {
+          btn.classList.remove('added');
+          btn.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            Add to Cart
+          `;
+        }
+      });
+    }
+
+    // -- Checkout → API + WhatsApp --
+    document.getElementById('checkoutBtn').addEventListener('click', async () => {
+      const cart = getCart();
+      if (cart.length === 0) return;
+
+      const btn = document.getElementById('checkoutBtn');
+      btn.disabled = true;
+      btn.textContent = 'Processing…';
+
+      const user   = typeof AuthSystem !== 'undefined' ? AuthSystem.getCurrentUser() : null;
+      const client = user ? user.name : 'Guest';
+      const email  = user ? user.email : '';
+      const total  = cart.reduce((s, i) => s + i.price * i.qty, 0);
+
+      const apiItems = cart.map(i => ({
+        sku:      i.id,
+        name:     i.name,
+        category: i.category,
+        price:    i.price,
+        qty:      i.qty,
+      }));
+
+      let ref = genRef();
+      let receipt = null;
+
+      // Try saving to backend API
+      if (window.LAApi && LAApi.auth.isAuthenticated()) {
+        try {
+          const res = await LAApi.orders.create(apiItems, {
+            client_name:  client,
+            client_email: email,
+          });
+          if (res.ok && res.data.reference) {
+            ref = res.data.reference;
+            receipt = {
+              id:        'RCP-' + ref,
+              orderId:   ref,
+              client,
+              email,
+              items:     cart.map(i => ({ name: i.name, category: i.category, price: i.price, qty: i.qty, subtotal: i.price * i.qty })),
+              total,
+              status:    'pending',
+              createdAt: new Date().toISOString(),
+            };
+          }
+        } catch (_) { /* fall through to local save */ }
+      }
+
+      // Local fallback (always save locally too)
+      if (!receipt) {
+        receipt = {
+          id:        'RCP-' + ref,
+          orderId:   ref,
+          client,
+          email,
+          items:     cart.map(i => ({ name: i.name, category: i.category, price: i.price, qty: i.qty, subtotal: i.price * i.qty })),
+          total,
+          status:    'pending',
+          createdAt: new Date().toISOString(),
+        };
+      }
+      const orders = getOrders();
+      orders.push({ ...receipt, id: ref });
+      saveOrders(orders);
+      const receipts = JSON.parse(localStorage.getItem('la_couture_receipts') || '[]');
+      receipts.push(receipt);
+      localStorage.setItem('la_couture_receipts', JSON.stringify(receipts));
+
+      // Build WhatsApp message
+      const fmtWA  = n => 'N ' + Math.round(n).toLocaleString('en-NG');
+      const items  = cart.map(i => `- ${i.qty}x ${i.name} (${fmtWA(i.price)} each)`).join('\n');
+      const msgRaw = `Hello L.A. Couture!\n\nI would like to place an order:\n\n${items}\n\nOrder Total: ${fmtWA(total)}\nOrder Ref: ${ref}\n\nPlease confirm availability and payment details.`;
+      const waUrl  = `https://wa.me/2349154577746?text=${encodeURIComponent(msgRaw)}`;
+
+      // Show success modal
+      document.getElementById('orderRef').textContent = 'Order #' + ref;
+      document.getElementById('orderModal').classList.add('show');
+      btn.disabled = false;
+      btn.textContent = 'Place Order via WhatsApp';
+
+      document.getElementById('viewReceiptBtn').onclick = function () {
+        buildCartReceipt(receipt);
+        document.getElementById('orderModal').classList.remove('show');
+        document.getElementById('cartReceiptModal').style.display = 'flex';
+      };
+
+      saveCart([]);
+      renderCart();
+      syncCartButtons();
+      closeCart();
+
+      setTimeout(() => window.open(waUrl, '_blank'), 800);
+    });
+
+    function buildCartReceipt(r) {
+      const st = (r.status||'pending').toLowerCase();
+      const date = new Date(r.createdAt).toLocaleString('en-NG',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      const rows = (r.items||[]).map(i => `
+        <tr>
+          <td style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.05);color:rgba(248,244,239,0.8);">${i.name}<br><span style="color:rgba(248,244,239,0.4);font-size:0.72rem;">${i.category||''}</span></td>
+          <td style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.05);text-align:center;color:rgba(248,244,239,0.8);">${i.qty}</td>
+          <td style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.05);text-align:right;color:rgba(248,244,239,0.8);">&#8358; ${(i.price||0).toLocaleString('en-NG')}</td>
+          <td style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.05);text-align:right;color:#f8f4ef;">&#8358; ${((i.price||0)*(i.qty||1)).toLocaleString('en-NG')}</td>
+        </tr>`).join('');
+      document.getElementById('cartReceiptBody').innerHTML = `
+        <div id="cartPrintArea">
+          <div style="display:flex;align-items:center;gap:13px;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,0.08);">
+            <img src="img/logo2.jpg" style="width:42px;height:42px;border-radius:10px;object-fit:cover;" alt="">
+            <div>
+              <div style="font-family:'Playfair Display',Georgia,serif;font-size:1.05rem;color:#f8f4ef;letter-spacing:0.08em;">L.A. COUTURE</div>
+              <div style="font-size:0.68rem;color:rgba(248,244,239,0.45);text-transform:uppercase;letter-spacing:0.12em;">Azhata, FCT Abuja &middot; Order Receipt</div>
+            </div>
+            <span style="margin-left:auto;display:inline-block;padding:4px 11px;border-radius:999px;font-size:0.68rem;font-weight:700;text-transform:uppercase;background:rgba(255,193,7,0.15);color:#ffc107;border:1px solid rgba(255,193,7,0.3);">${st}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:20px;font-size:0.81rem;">
+            <div><div style="color:rgba(248,244,239,0.4);font-size:0.67rem;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Receipt No.</div><div style="color:#c59b2d;font-family:monospace;font-weight:700;">${r.id}</div></div>
+            <div><div style="color:rgba(248,244,239,0.4);font-size:0.67rem;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Order Ref</div><div style="color:#f8f4ef;">${r.orderId}</div></div>
+            <div><div style="color:rgba(248,244,239,0.4);font-size:0.67rem;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Name</div><div style="color:#f8f4ef;">${r.client||'Guest'}</div></div>
+            <div><div style="color:rgba(248,244,239,0.4);font-size:0.67rem;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Date</div><div style="color:#f8f4ef;">${date}</div></div>
+            ${r.email ? `<div style="grid-column:1/-1;"><div style="color:rgba(248,244,239,0.4);font-size:0.67rem;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Email</div><div style="color:#f8f4ef;font-size:0.78rem;">${r.email}</div></div>` : ''}
+          </div>
+          <table style="width:100%;border-collapse:collapse;">
+            <thead><tr>
+              <th style="color:rgba(248,244,239,0.4);font-size:0.67rem;text-transform:uppercase;letter-spacing:0.08em;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.08);text-align:left;">Item</th>
+              <th style="color:rgba(248,244,239,0.4);font-size:0.67rem;text-transform:uppercase;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.08);text-align:center;">Qty</th>
+              <th style="color:rgba(248,244,239,0.4);font-size:0.67rem;text-transform:uppercase;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.08);text-align:right;">Unit</th>
+              <th style="color:rgba(248,244,239,0.4);font-size:0.67rem;text-transform:uppercase;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.08);text-align:right;">Total</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0 0;border-top:1px solid rgba(255,255,255,0.08);margin-top:6px;">
+            <span style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:rgba(248,244,239,0.4);">Order Total</span>
+            <span style="font-family:'Playfair Display',Georgia,serif;font-size:1.3rem;color:#c59b2d;">&#8358; ${(r.total||0).toLocaleString('en-NG')}</span>
+          </div>
+          <div style="margin-top:18px;padding:12px 14px;background:rgba(197,155,45,0.06);border:1px solid rgba(197,155,45,0.14);border-radius:10px;font-size:0.75rem;color:rgba(248,244,239,0.5);line-height:1.7;">
+            Payment via Paystack or bank transfer. 50% deposit confirms your order.<br>
+            WhatsApp: <strong style="color:#c59b2d;">+234 915 457 7746</strong> &middot; L.acouture014@gmail.com
+          </div>
+        </div>`;
+    }
+
+    window.printCartReceipt = function() {
+      const c = document.getElementById('cartPrintArea');
+      if (!c) return;
+      const w = window.open('','_blank','width=640,height=860');
+      w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Receipt &mdash; L.A. Couture</title>
+      <style>
+        body{font-family:Georgia,serif;background:#fff;color:#111;padding:36px;max-width:560px;margin:0 auto;}
+        table{width:100%;border-collapse:collapse;margin:12px 0;}
+        th{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:#666;border-bottom:1px solid #ddd;padding:5px 0;text-align:left;}
+        td{padding:9px 0;border-bottom:1px solid #eee;font-size:0.82rem;vertical-align:top;}
+        td:last-child{text-align:right;}
+        @media print{body{padding:16px;}}
+      </style></head><body>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid #c59b2d;">
+        <div><div style="font-size:1.2rem;font-weight:bold;letter-spacing:0.08em;">L.A. COUTURE</div><div style="font-size:0.68rem;color:#888;text-transform:uppercase;letter-spacing:0.08em;">Azhata, FCT Abuja &middot; Order Receipt</div></div>
+      </div>
+      ${c.innerHTML.replace(/<img[^>]*>/g,'')}
+      <div style="margin-top:24px;font-size:0.63rem;color:#aaa;text-align:center;border-top:1px solid #eee;padding-top:12px;">&copy; 2026 L.A. Couture. All Rights Reserved. This receipt is auto-generated.</div>
+      </body></html>`);
+      w.document.close(); w.focus(); setTimeout(()=>w.print(),500);
+    };
+
+    // -- Filter: keep URL param support --
     document.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
       const cat = params.get('cat');
@@ -250,6 +1089,16 @@
         if (btn) btn.click();
       }
     });
+
+    // -- Init --
+    renderCart();
+    syncCartButtons();
+
+  })();
+
+  function closeOrderModal() {
+    document.getElementById('orderModal').classList.remove('show');
+  }
   </script>
 </body>
 </html>

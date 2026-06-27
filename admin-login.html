@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Login — L.A. Couture</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css" />
   <style>
     .auth-container {
@@ -161,22 +164,44 @@
     </div>
   </div>
 
+  <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script>
-    document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const errorMsg = document.getElementById('errorMsg');
+    const form = document.getElementById('adminLoginForm');
+    const errorMsg = document.getElementById('errorMsg');
 
-      const result = AuthSystem.adminLogin(email, password);
-      
-      if (result.success) {
-        window.location.href = 'admin-dashboard.html';
-      } else {
-        errorMsg.textContent = result.error;
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = form.querySelector('.auth-btn');
+      btn.disabled = true;
+      btn.textContent = 'Signing in…';
+      errorMsg.style.display = 'none';
+
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      // Rate limit client-side
+      const rl = FormSecurity.checkRateLimit('admin-login', 5, 5 * 60 * 1000);
+      if (!rl.allowed) {
+        errorMsg.textContent = `Too many attempts. Try again in ${rl.waitSecs}s.`;
         errorMsg.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Sign In';
+        return;
+      }
+
+      try {
+        const res = await LAApi.auth.adminLogin(email, password);
+        if (res.ok) {
+          window.location.href = 'admin-dashboard.html';
+        } else {
+          errorMsg.textContent = res.data?.message || 'Invalid credentials.';
+          errorMsg.style.display = 'block';
+          btn.disabled = false; btn.textContent = 'Sign In';
+        }
+      } catch (err) {
+        errorMsg.textContent = 'Cannot reach server. Check your connection.';
+        errorMsg.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Sign In';
       }
     });
   </script>

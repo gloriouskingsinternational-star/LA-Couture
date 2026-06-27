@@ -1,3 +1,2 @@
-# Netlify redirects
-# Any page not found → show 404 friendly
-/*    /index.html   404
+# Netlify redirects — 404 goes to branded page
+/*    /404.html   404

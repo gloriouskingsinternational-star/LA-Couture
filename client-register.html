@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Client Registration — L.A. Couture</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css" />
   <style>
     .auth-container {
@@ -233,55 +236,80 @@
     </div>
   </div>
 
+  <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script>
-    document.getElementById('registerForm').addEventListener('submit', function(e) {
+    const form = document.getElementById('registerForm');
+    const errorMsg = document.getElementById('errorMsg');
+
+    form.addEventListener('submit', async function(e) {
       e.preventDefault();
-      
-      const firstName = document.getElementById('firstName').value;
-      const lastName = document.getElementById('lastName').value;
-      const email = document.getElementById('email').value;
-      const phone = document.getElementById('phone').value;
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
-      const interests = document.getElementById('interests').value;
-      const errorMsg = document.getElementById('errorMsg');
+      const btn = form.querySelector('.auth-btn');
+      btn.disabled = true;
+      btn.textContent = 'Creating account…';
+      errorMsg.style.display = 'none';
 
-      // Validation
+      const firstName = document.getElementById('firstName').value.trim();
+      const lastName  = document.getElementById('lastName').value.trim();
+      const email     = document.getElementById('email').value.trim();
+      const phone     = document.getElementById('phone').value.trim();
+      const password  = document.getElementById('password').value;
+      const confirm   = document.getElementById('confirmPassword').value;
+      const interests = document.getElementById('interests').value.trim();
+
       if (!firstName || !lastName || !email || !password) {
-        errorMsg.textContent = 'Please fill in all required fields';
+        errorMsg.textContent = 'Please fill in all required fields.';
         errorMsg.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Create Account';
+        return;
+      }
+      if (password !== confirm) {
+        errorMsg.textContent = 'Passwords do not match.';
+        errorMsg.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Create Account';
+        return;
+      }
+      if (password.length < 8) {
+        errorMsg.textContent = 'Password must be at least 8 characters.';
+        errorMsg.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Create Account';
         return;
       }
 
-      if (password !== confirmPassword) {
-        errorMsg.textContent = 'Passwords do not match';
+      const rl = FormSecurity.checkRateLimit('register', 3, 60 * 60 * 1000);
+      if (!rl.allowed) {
+        errorMsg.textContent = `Too many attempts. Try again in ${rl.waitSecs}s.`;
         errorMsg.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Create Account';
         return;
       }
 
-      if (password.length < 6) {
-        errorMsg.textContent = 'Password must be at least 6 characters';
-        errorMsg.style.display = 'block';
-        return;
-      }
+      try {
+        const res = await LAApi.auth.register({
+          name:              firstName + ' ' + lastName,
+          email,
+          phone:             phone || null,
+          password,
+          password_confirmation: confirm,
+          interests:         interests || null,
+        });
 
-      const result = AuthSystem.clientRegister({
-        name: firstName + ' ' + lastName,
-        firstName,
-        lastName,
-        email,
-        phone,
-        password,
-        interests
-      });
-
-      if (result.success) {
-        alert('Registration successful! Your account is pending admin approval. You will be notified via email when approved.');
-        window.location.href = 'index.html';
-      } else {
-        errorMsg.textContent = result.error;
+        if (res.ok) {
+          alert('Registration successful! Your account is pending admin approval. You will be notified when approved.');
+          window.location.href = 'client-login.html';
+        } else {
+          const errs = res.data?.errors;
+          const msg  = errs
+            ? Object.values(errs).flat().join(' ')
+            : (res.data?.message || 'Registration failed. Please try again.');
+          errorMsg.textContent = msg;
+          errorMsg.style.display = 'block';
+          btn.disabled = false; btn.textContent = 'Create Account';
+        }
+      } catch (err) {
+        errorMsg.textContent = 'Cannot reach server. Please try again later.';
         errorMsg.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Create Account';
       }
     });
   </script>

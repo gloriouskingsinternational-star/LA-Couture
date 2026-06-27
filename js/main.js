@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
       hamburger.classList.add('is-open');
       hamburger.setAttribute('aria-expanded', 'true');
     }
+    // Do NOT lock body scroll — dropdown is inside nav, page still scrollable
   }
 
   function closeDrawer() {
@@ -46,28 +47,47 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function isDrawerOpen() {
+    return drawer ? drawer.classList.contains('open') : false;
+  }
+
   if (hamburger) {
     hamburger.addEventListener('click', (e) => {
+      e.preventDefault();
       e.stopPropagation();
-      drawer?.classList.contains('open') ? closeDrawer() : openDrawer();
+      isDrawerOpen() ? closeDrawer() : openDrawer();
     });
   }
 
-  // Tap overlay or anywhere outside to close
-  overlay?.addEventListener('click', closeDrawer);
+  // Tap the overlay to close
+  if (overlay) {
+    overlay.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeDrawer();
+    });
+  }
+
+  // Click anywhere outside nav to close
   document.addEventListener('click', (e) => {
-    if (!drawer?.classList.contains('open')) return;
-    if (!drawer.contains(e.target) && !hamburger?.contains(e.target)) closeDrawer();
+    if (!isDrawerOpen()) return;
+    const nav = document.querySelector('.nav');
+    if (nav && !nav.contains(e.target) && !overlay?.contains(e.target)) {
+      closeDrawer();
+    }
   });
 
-  // Close when a menu link is tapped
-  drawer?.querySelectorAll('a').forEach((link) => {
-    link.addEventListener('click', closeDrawer);
-  });
+  // Close when a nav link inside drawer is tapped
+  if (drawer) {
+    drawer.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        closeDrawer();
+      });
+    });
+  }
 
-  // Close on Escape
+  // Close on Escape key
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeDrawer();
+    if (e.key === 'Escape' && isDrawerOpen()) closeDrawer();
   });
 
   /* ── Filter Buttons (Collections & Gallery) */
@@ -179,5 +199,94 @@ document.addEventListener('DOMContentLoaded', () => {
       link.classList.add('active');
     }
   });
+
+  /* ── Logged-in user nav pill ─────────────── */
+  (function initUserNav() {
+    if (typeof AuthSystem === 'undefined') return;
+    const user = AuthSystem.getCurrentUser();
+    if (!user) return;
+
+    const isAdmin    = user.role === 'admin';
+    const dashUrl    = isAdmin ? 'admin-dashboard.html' : 'client-dashboard.html';
+    const initials   = (user.name || user.email || 'U')
+                         .split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    const displayName = user.name || user.email || (isAdmin ? 'Admin' : 'Client');
+    const roleLabel   = isAdmin ? 'Administrator' : 'Client';
+
+    // Build pill HTML
+    const pillHTML = `
+      <div class="user-pill" id="userPill" role="button" aria-haspopup="true" aria-expanded="false" tabindex="0">
+        <div class="user-pill-avatar">${initials}</div>
+        <span class="user-pill-name">${displayName.split(' ')[0]}</span>
+        <svg class="user-pill-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        <div class="user-pill-dropdown" role="menu">
+          <div class="user-pill-header">
+            <div class="user-pill-avatar lg">${initials}</div>
+            <div>
+              <div class="user-pill-full-name">${displayName}</div>
+              <div class="user-pill-role">${roleLabel}</div>
+            </div>
+          </div>
+          <a href="${dashUrl}" class="user-pill-item" role="menuitem">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Dashboard
+          </a>
+          <button class="user-pill-item user-pill-logout" role="menuitem" onclick="AuthSystem.logout()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sign Out
+          </button>
+        </div>
+      </div>`;
+
+    // Replace .auth-nav desktop
+    const authNav = document.querySelector('.auth-nav');
+    if (authNav) authNav.outerHTML = pillHTML;
+
+    // Replace .drawer-auth mobile
+    const drawerAuth = document.querySelector('.drawer-auth');
+    if (drawerAuth) {
+      drawerAuth.innerHTML = `
+        <div class="drawer-user">
+          <div class="drawer-user-avatar">${initials}</div>
+          <div>
+            <div class="drawer-user-name">${displayName}</div>
+            <div class="drawer-user-role">${roleLabel}</div>
+          </div>
+        </div>
+        <a href="${dashUrl}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </a>
+        <button onclick="AuthSystem.logout()" style="background:none;border:none;cursor:pointer;color:rgba(248,244,239,0.6);font-size:0.9rem;padding:10px 0;text-align:left;width:100%;display:flex;align-items:center;gap:10px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign Out
+        </button>`;
+    }
+
+    // Dropdown toggle
+    document.addEventListener('click', (e) => {
+      const pill = document.getElementById('userPill');
+      if (!pill) return;
+      if (pill.contains(e.target)) {
+        const open = pill.getAttribute('aria-expanded') === 'true';
+        pill.setAttribute('aria-expanded', String(!open));
+        pill.classList.toggle('open', !open);
+      } else {
+        pill.setAttribute('aria-expanded', 'false');
+        pill.classList.remove('open');
+      }
+    });
+
+    // Keyboard support
+    document.getElementById('userPill')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const pill = document.getElementById('userPill');
+        const open = pill.getAttribute('aria-expanded') === 'true';
+        pill.setAttribute('aria-expanded', String(!open));
+        pill.classList.toggle('open', !open);
+      }
+    });
+  })();
 
 });
