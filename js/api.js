@@ -4,7 +4,9 @@
    Falls back to localStorage when backend is unreachable.
    ═══════════════════════════════════════════════════ */
 
-const API_BASE = 'https://la-couture-backend.up.railway.app/api';
+const API_BASE = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
+  ? 'http://127.0.0.1:8000/api'
+  : 'https://la-couture-backend.up.railway.app/api';
 
 const LAApi = (() => {
   function getToken() {
