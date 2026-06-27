@@ -44,6 +44,36 @@ p { color: rgba(248,244,239,0.78); line-height: 1.9; }
   margin: 0 auto;
 }
 
+/* ═══ TOPBAR (live date & time) ════════════ */
+.topbar {
+  background: #05040a;
+  border-bottom: 1px solid rgba(197,155,45,0.12);
+  padding: 6px 0;
+}
+.topbar-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 28px;
+}
+#clock-date {
+  font-size: 0.69rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+#clock-time {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 520px) {
+  #clock-date { display: none; }
+  .topbar-inner { justify-content: center; }
+}
+
 /* ═══ NAVIGATION ═══════════════════════════ */
 .nav {
   position: sticky;

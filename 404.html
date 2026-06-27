@@ -35,6 +35,13 @@
   </style>
 </head>
 <body>
+  <!-- TOPBAR -->
+  <div class="topbar" style="padding:6px 24px;">
+    <div class="topbar-inner">
+      <span id="clock-date"></span>
+      <span id="clock-time"></span>
+    </div>
+  </div>
   <div class="not-found">
     <div class="not-found-inner">
       <p class="not-found-num">404</p>
@@ -46,5 +53,17 @@
       </div>
     </div>
   </div>
+  <script>
+    (function(){
+      var TZ='Africa/Lagos';
+      function tick(){
+        var d=document.getElementById('clock-date'),t=document.getElementById('clock-time');
+        var now=new Date();
+        if(d)d.textContent=now.toLocaleDateString('en-NG',{weekday:'long',year:'numeric',month:'long',day:'numeric',timeZone:TZ});
+        if(t)t.textContent=now.toLocaleTimeString('en-NG',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true,timeZone:TZ})+' WAT';
+      }
+      tick(); setInterval(tick,1000);
+    })();
+  </script>
 </body>
 </html>

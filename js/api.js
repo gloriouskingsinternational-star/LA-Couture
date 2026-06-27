@@ -210,3 +210,21 @@ const LAApi = (() => {
 })();
 
 window.LAApi = LAApi;
+
+/* ── Live Clock — runs on every page ─────── */
+(function () {
+  const TZ = 'Africa/Lagos';
+  function tick() {
+    const d = document.getElementById('clock-date');
+    const t = document.getElementById('clock-time');
+    if (!d && !t) return;
+    const now = new Date();
+    if (d) d.textContent = now.toLocaleDateString('en-NG', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: TZ,
+    });
+    if (t) t.textContent = now.toLocaleTimeString('en-NG', {
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true, timeZone: TZ,
+    }) + ' WAT';
+  }
+  document.addEventListener('DOMContentLoaded', function () { tick(); setInterval(tick, 1000); });
+})();
