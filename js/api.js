@@ -4,9 +4,12 @@
    Falls back to localStorage when backend is unreachable.
    ═══════════════════════════════════════════════════ */
 
-const API_BASE = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
+// Priority: local dev → meta tag override → hardcoded Railway URL
+const _isLocal = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+const _metaApi  = document.querySelector('meta[name="api-base"]')?.content;
+const API_BASE  = _isLocal
   ? 'http://127.0.0.1:8000/api'
-  : 'https://la-couture-backend.up.railway.app/api';
+  : (_metaApi || 'https://la-couture-backend.up.railway.app/api');
 
 const LAApi = (() => {
   function getToken() {
