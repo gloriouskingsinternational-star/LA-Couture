@@ -9,7 +9,12 @@ return [
         env('FRONTEND_URL', 'https://lacouture.netlify.app'),
         'http://localhost:5500',
         'http://127.0.0.1:5500',
+        'http://localhost:5501',
+        'http://127.0.0.1:5501',
         'http://localhost:8080',
+        'http://127.0.0.1:8080',
+        'http://localhost',
+        'http://127.0.0.1',
     ],
 
     'allowed_origins_patterns' => [],
