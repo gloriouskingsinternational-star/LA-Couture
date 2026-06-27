@@ -123,7 +123,7 @@ class AuthController extends Controller
             'name'      => strip_tags($request->name),
             'email'     => $request->email,
             'phone'     => $request->phone ? preg_replace('/[^0-9+\-\s()]/', '', $request->phone) : null,
-            'password'  => $request->password,
+            'password'  => Hash::make($request->password),
             'role'      => 'client',
             'status'    => 'pending',
             'interests' => $request->interests ? strip_tags($request->interests) : null,

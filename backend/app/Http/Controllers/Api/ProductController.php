@@ -21,6 +21,9 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
+        if (! $product->active) {
+            return response()->json(['message' => 'Product not found.'], 404);
+        }
         return response()->json($product);
     }
 
@@ -56,6 +59,7 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $request->validate([
+            'sku'         => 'sometimes|string|max:20|unique:products,sku,' . $product->id,
             'name'        => 'sometimes|string|max:200',
             'category'    => 'sometimes|string|max:100',
             'price'       => 'sometimes|numeric|min:0',
@@ -67,7 +71,7 @@ class ProductController extends Controller
         ]);
 
         $product->update($request->only([
-            'name', 'category', 'price', 'description',
+            'sku', 'name', 'category', 'price', 'description',
             'image', 'tag', 'stock', 'active',
         ]));
 

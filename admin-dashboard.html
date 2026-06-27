@@ -379,9 +379,9 @@
         <td><span class="badge badge-${st}">${st}</span></td>
         <td style="color:var(--muted);font-size:0.8rem;">${fmtDate(date)}</td>
         <td>
-          <button class="action-btn" onclick="viewOrder(${JSON.stringify(ref)})">View</button>
-          <button class="action-btn green" onclick="setOrderStatus(${JSON.stringify(o.id)},${JSON.stringify(ref)},'confirmed')">Confirm</button>
-          <button class="action-btn" onclick="openReceipt(${JSON.stringify(ref)})">Receipt</button>
+          <button class="action-btn" data-ref="${ref}" onclick="viewOrder(this.dataset.ref)">View</button>
+          <button class="action-btn green" data-id="${o.id}" data-ref="${ref}" onclick="setOrderStatus(this.dataset.id,this.dataset.ref,'confirmed')">Confirm</button>
+          <button class="action-btn" data-ref="${ref}" onclick="openReceipt(this.dataset.ref)">Receipt</button>
         </td>
       </tr>`;
     }).join('');
@@ -555,9 +555,19 @@
       </div>`).join('');
   }
 
-  window.toggleProduct = function(id) {
+  window.toggleProduct = async function(id) {
     const p = getProducts(); const item = p.find(x=>x.id===id);
-    if (item) { item.active=!item.active; saveProducts(p); loadProducts(); }
+    if (!item) return;
+    const newActive = !item.active;
+    // Sync to API first, then update local state on success
+    const res = await LAApi.admin.updateProduct(id, { active: newActive });
+    if (res.ok) {
+      item.active = newActive;
+      saveProducts(p);
+    } else {
+      alert(res.data?.message || 'Failed to update product status.');
+    }
+    loadProducts();
   };
 
   window.openAddProduct = function() {

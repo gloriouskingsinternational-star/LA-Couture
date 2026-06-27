@@ -69,7 +69,7 @@ class AdminController extends Controller
     public function contactForms()
     {
         return response()->json(
-            ContactForm::orderByDesc('created_at')->get()
+            ContactForm::orderByDesc('created_at')->paginate(50)
         );
     }
 

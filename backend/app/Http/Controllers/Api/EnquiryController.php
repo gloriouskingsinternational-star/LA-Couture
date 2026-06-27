@@ -35,8 +35,9 @@ class EnquiryController extends Controller
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
+        // Mark messages sent by the OTHER party as read (i.e. messages the viewer hasn't sent)
         EnquiryMessage::where('enquiry_id', $enquiry->id)
-                      ->where('sender_type', '!=', $user->isAdmin() ? 'admin' : 'client')
+                      ->where('sender_type', $user->isAdmin() ? 'client' : 'admin')
                       ->update(['is_read' => true]);
 
         return response()->json($enquiry->load('messages'));

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -22,7 +23,7 @@ class OrderController extends Controller
             $orders = Order::with('items')
                            ->where('user_id', $user->id)
                            ->orderByDesc('created_at')
-                           ->get();
+                           ->paginate(25);
         }
 
         return response()->json($orders);
@@ -41,22 +42,49 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $user = $request->user();
+
+        $rules = [
             'items'          => 'required|array|min:1',
             'items.*.sku'    => 'required|string|max:20',
             'items.*.name'   => 'required|string|max:200',
             'items.*.price'  => 'required|numeric|min:0',
-            'items.*.qty'    => 'required|integer|min:1',
+            'items.*.qty'    => 'required|integer|min:1|max:100',
             'client_name'    => 'nullable|string|max:100',
-            'client_email'   => 'nullable|email|max:255',
             'client_phone'   => 'nullable|string|max:20',
-        ]);
+        ];
 
-        $user  = $request->user();
+        // Guest orders must supply contact details
+        if (! $user) {
+            $rules['client_email'] = 'required|email|max:255';
+            $rules['client_phone'] = 'required|string|max:20';
+            $rules['client_name']  = 'required|string|max:100';
+        } else {
+            $rules['client_email'] = 'nullable|email|max:255';
+        }
+
+        $request->validate($rules);
+
         $items = $request->items;
-        $total = collect($items)->sum(fn($i) => $i['price'] * $i['qty']);
 
-        $ref = 'LA-' . now()->format('ymd') . '-' . strtoupper(Str::random(4));
+        // Validate each SKU exists and price matches database
+        $priceErrors = [];
+        foreach ($items as $item) {
+            $product = Product::where('sku', strtoupper($item['sku']))->where('active', true)->first();
+            if (! $product) {
+                $priceErrors[] = "SKU {$item['sku']} not found or inactive.";
+                continue;
+            }
+            if ((int) $product->price !== (int) $item['price']) {
+                $priceErrors[] = "Price mismatch for {$item['sku']}: expected {$product->price}, got {$item['price']}.";
+            }
+        }
+        if (! empty($priceErrors)) {
+            return response()->json(['message' => 'Price validation failed.', 'errors' => $priceErrors], 422);
+        }
+
+        $total = collect($items)->sum(fn($i) => $i['price'] * $i['qty']);
+        $ref   = 'LA-' . now()->format('ymd') . '-' . strtoupper(Str::random(4));
 
         $order = Order::create([
             'reference'    => $ref,
@@ -99,7 +127,8 @@ class OrderController extends Controller
         }
 
         $order->update($data);
+        $order->refresh();
 
-        return response()->json($order->fresh()->load('items'));
+        return response()->json($order->load('items'));
     }
 }
